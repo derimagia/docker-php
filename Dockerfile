@@ -71,6 +71,4 @@ RUN ln -s /root/.composer/vendor/bin/drupal /usr/local/bin/drupal && \
 COPY php.ini $PHP_INI_PATH
 
 COPY docker-entrypoint.sh /
-
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
