@@ -49,26 +49,29 @@ RUN apk add --no-cache \
 	bash \
     zip \
     vim \
+    zsh \
+    sudo \
     git
 
-# Profile for CLI
-COPY .bashrc /root/.bashrc
+# Don't run pph.ini so we can make sure xdebug isn't enabled
+RUN curl -sS https://getcomposer.org/installer | php -n -- --install-dir=/usr/bin/ --filename=composer.phar
+
+COPY etc/php.ini $PHP_INI_PATH
+COPY etc/composer.sh /usr/bin/composer
+COPY etc/profile /etc/profile
+
+ENV PATH=/root/.composer/vendor/bin:$PATH
 
 # Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer && \
-	composer global require "hirak/prestissimo:^0.3" && \
+RUN composer global require \
+      'hirak/prestissimo:^0.3' && \
     composer global require \
-        drush/drush \
-        drush/config-extra \
-        drupal/console \
-        wp-cli/wp-cli
-
-RUN ln -s /root/.composer/vendor/bin/drupal /usr/local/bin/drupal && \
-    ln -s /root/.composer/vendor/bin/drush /usr/local/bin/drush && \
-    ln -s /root/.composer/vendor/bin/wp /usr/local/bin/wp && \
+      drush/drush \
+      drush/config-extra \
+      drupal/console \
+      wp-cli/wp-cli && \
     drupal init --override
 
-COPY php.ini $PHP_INI_PATH
-
 COPY docker-entrypoint.sh /
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
